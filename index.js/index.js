@@ -1,7 +1,8 @@
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const fs = require('fs'); // Importar o módulo para manipulação de ficheiros
+const fs = require('fs');
+const path = require('path');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -11,16 +12,18 @@ app.use(cors());
 app.use(bodyParser.json());
 
 // Nome do ficheiro JSON
-const dataFile = 'escolas.json';
+const dataFile = path.join(__dirname, 'escolas.json');
 
 // Função para carregar os dados do ficheiro JSON
 function loadData() {
     try {
         if (fs.existsSync(dataFile)) {
             const data = fs.readFileSync(dataFile, 'utf8');
+            console.log('Dados carregados:', data);
             return JSON.parse(data);
         } else {
             console.log('Ficheiro JSON não encontrado. Criando um novo.');
+            fs.writeFileSync(dataFile, JSON.stringify([])); // Cria um novo ficheiro JSON
             return [];
         }
     } catch (error) {
@@ -162,3 +165,4 @@ app.post('/escolas/:nomeEscola/cursos/:nomeCurso/empresas', (req, res) => {
 app.listen(port, () => {
     console.log(`Servidor rodando em http://localhost:${port}`);
 });
+
