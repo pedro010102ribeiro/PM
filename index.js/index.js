@@ -162,9 +162,3 @@ app.post('/escolas/:nomeEscola/cursos/:nomeCurso/empresas', (req, res) => {
 app.listen(port, () => {
     console.log(`Servidor rodando em http://localhost:${port}`);
 });
-
-
-// Iniciar o servidor
-app.listen(port, () => {
-    console.log(`Servidor rodando em http://localhost:${port}`);
-});
