@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
+const fs = require('fs'); // Importar o módulo para manipulação de ficheiros
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -9,8 +10,37 @@ const port = process.env.PORT || 3000;
 app.use(cors());
 app.use(bodyParser.json());
 
-// Dados simulados
-let escolas = [];
+// Nome do ficheiro JSON
+const dataFile = 'escolas.json';
+
+// Função para carregar os dados do ficheiro JSON
+function loadData() {
+    try {
+        if (fs.existsSync(dataFile)) {
+            const data = fs.readFileSync(dataFile, 'utf8');
+            return JSON.parse(data);
+        } else {
+            console.log('Ficheiro JSON não encontrado. Criando um novo.');
+            return [];
+        }
+    } catch (error) {
+        console.error('Erro ao carregar os dados:', error);
+        return [];
+    }
+}
+
+// Função para salvar os dados no ficheiro JSON
+function saveData(data) {
+    try {
+        fs.writeFileSync(dataFile, JSON.stringify(data, null, 2));
+        console.log('Dados salvos no ficheiro JSON com sucesso.');
+    } catch (error) {
+        console.error('Erro ao salvar os dados:', error);
+    }
+}
+
+// Dados simulados carregados do ficheiro JSON
+let escolas = loadData();
 
 // Rota principal
 app.get('/', (req, res) => {
@@ -35,6 +65,7 @@ app.post('/escolas', (req, res) => {
     }
 
     escolas.push(escola);
+    saveData(escolas); // Salvar os dados atualizados no ficheiro JSON
     res.status(201).json(escola);
 });
 
@@ -70,6 +101,7 @@ app.post('/escolas/:nome/cursos', (req, res) => {
     }
 
     escola.cursos.push(curso);
+    saveData(escolas); // Salvar os dados atualizados no ficheiro JSON
     res.status(201).json(curso);
 });
 
@@ -122,8 +154,15 @@ app.post('/escolas/:nomeEscola/cursos/:nomeCurso/empresas', (req, res) => {
     }
 
     curso.empresas.push(empresa);
+    saveData(escolas); // Salvar os dados atualizados no ficheiro JSON
     res.status(201).json(empresa);
 });
+
+// Iniciar o servidor
+app.listen(port, () => {
+    console.log(`Servidor rodando em http://localhost:${port}`);
+});
+
 
 // Iniciar o servidor
 app.listen(port, () => {
